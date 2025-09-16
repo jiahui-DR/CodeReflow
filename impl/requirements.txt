@@ -1,0 +1,12 @@
+# 核心依赖
+GitPython>=3.1.0
+python-gitlab>=3.0.0
+
+# 可选依赖
+# requests>=2.25.0  # 如果需要额外的HTTP功能
+# pyyaml>=5.4.0    # 如果需要YAML配置支持
+
+# 开发依赖
+# pytest>=6.2.0     # 单元测试
+# black>=21.0.0    # 代码格式化
+# flake8>=3.9.0    # 代码检查
