@@ -14,12 +14,25 @@
 - 📝 **结构化日志** - 详细的日志记录，便于问题诊断
 - 🔧 **高度可配置** - 支持缓存、性能、日志等多维度配置
 
+## 📁 项目结构
+
+```
+core_reflow/
+├── config/          # 📋 配置文件和模板
+├── core_reflow/     # 🔧 核心代码包
+├── docs/           # 📖 完整文档体系
+├── examples/       # 📚 示例和演示
+├── tests/          # 🧪 测试代码
+├── scripts/        # 🛠️ 辅助脚本
+└── logs/           # 📝 日志文件
+```
+
 ## 快速开始
 
 ### 1. 运行演示
 ```bash
 # 运行完整演示，了解系统功能
-python3 demo_usage.py
+python3 examples/basic_usage.py
 ```
 
 ### 2. 安装依赖
@@ -31,16 +44,19 @@ pip install -r requirements.txt
 ### 3. 配置系统
 ```bash
 # 复制配置模板
-cp examples/config.example.json config.json
+cp config/config.example.json config/config.json
 
 # 编辑配置文件
-vim config.json  # 设置GitLab token和项目信息
+vim config/config.json  # 设置GitLab token和项目信息
 ```
 
 ### 4. 运行测试
 ```bash
-# 运行基础功能测试
-python3 test_basic.py
+# 运行所有测试
+python3 scripts/run_tests.py
+
+# 运行示例演示
+python3 examples/basic_usage.py
 ```
 
 ### 5. 开始使用
@@ -48,10 +64,10 @@ python3 test_basic.py
 #### 基础使用
 ```bash
 # 验证分支的所有MR
-python3 core_reflow/main.py --branch your-feature-branch --config config.json
+python3 core_reflow/main.py --branch your-feature-branch --config config/config.json
 
 # 验证特定MR
-python3 core_reflow/main.py --mr-id 123 --config config.json
+python3 core_reflow/main.py --mr-id 123 --config config/config.json
 ```
 
 #### 高级使用
@@ -66,47 +82,47 @@ python3 core_reflow/main.py --mr-id 456 --cache-clear --days 90
 python3 core_reflow/main.py --branch feature/auth --output json > results.json
 ```
 
-## 核心功能演示
+## 🎯 核心功能
 
-运行 `python3 demo_usage.py` 可以看到：
+- ✅ **代码指纹技术** - 基于语义内容生成唯一标识，忽略格式差异
+- ✅ **智能匹配算法** - 支持直接合并、Cherry-pick等多种合并场景  
+- ✅ **GitLab集成** - 无缝对接GitLab API，自动获取MR信息
+- ✅ **交付分支验证** - 自动验证交付分支的所有MR是否进入主线
+- ✅ **高性能处理** - 并行处理和智能缓存，快速验证大量MR
+- ✅ **多仓库支持** - 同时验证多个项目的MR回流状态
+- ✅ **灵活配置** - 支持多项目、多分支的灵活配置
+- ✅ **详细报告** - 生成清晰的验证报告，支持多种输出格式
 
-- ✅ **指纹生成**：为代码变更生成唯一标识
-- ✅ **匹配验证**：智能判断变更是否进入主线
-- ✅ **结果输出**：清晰的状态报告和处理建议
-- ✅ **配置管理**：灵活的系统配置
-- ✅ **错误处理**：完善的异常处理机制
 
-## 目录结构
+## 💼 使用场景
 
-```
-core_reflow/
-├── 简化方案设计.md           # 📋 方案设计总览（推荐先读）
-├── 代码变更指纹验证方案设计.md  # 📖 详细技术方案
-├── 方案设计                  # 🗂️ 原始设计文档
-├── examples/                 # 💡 使用示例和配置模板
-│   ├── README.md            # 使用指南
-│   ├── config.example.json  # 配置模板
-│   └── main_example.py      # 主入口示例
-├── impl/                    # ⚙️ 实现代码和文档
-│   ├── README.md           # 实现指南
-│   └── requirements.txt    # 依赖包
-├── docs/                    # 📚 API文档和扩展说明
-│   └── README.md           # 详细文档
-└── README.md               # 本文件
+### **单MR验证**
+验证特定MR是否已进入主线分支：
+```bash
+python3 core_reflow/main.py --mr-id 123 --config config/config.json
 ```
 
-## 核心功能
+### **分支批量验证**  
+验证分支的所有MR：
+```bash
+python3 core_reflow/main.py --branch feature/big-feature --config config/config.json
+```
 
-- ✅ **MR状态验证**：判断MR是否已进入 `dev_master` 分支
-- ✅ **多路径支持**：支持直接合并、Cherry-pick、多路径合并
-- ✅ **智能匹配**：基于代码指纹的精确匹配
-- ✅ **多种输出**：控制台、JSON、Markdown格式
-- ✅ **配置灵活**：支持自定义忽略规则和搜索范围
+### **交付分支验证**（新功能）
+自动验证交付分支的所有MR是否进入主线：
+```bash
+python3 core_reflow/main.py --delivery-branch Release_v1.0.0 --config config/config.json
+```
 
-## 使用场景
+### **多仓库验证**（新功能）
+同时验证多个项目：
+```bash
+python3 core_reflow/main.py --multi-repo --config config/delivery_config.json
+```
 
+### **适用团队**
 - **开发团队**：验证功能分支是否已合并到主线
-- **测试团队**：确认代码变更是否已进入测试环境
+- **测试团队**：确认代码变更是否已进入测试环境  
 - **运维团队**：跟踪发布分支的代码回流状态
 - **管理人员**：监控项目整体的代码合并进度
 
@@ -117,17 +133,17 @@ core_reflow/
 - **GitLab集成**：python-gitlab
 - **存储**：SQLite + JSON文件
 
-## 快速验证
+## 🚀 快速验证
 
 ```bash
 # 1. 复制配置模板
-cp examples/config.example.json config.json
+cp config/config.example.json config/config.json
 
 # 2. 编辑配置
-vim config.json  # 修改GitLab token和项目信息
+vim config/config.json  # 修改GitLab token和项目信息
 
 # 3. 运行验证
-python examples/main_example.py --branch feature/your-branch --config config.json
+python3 core_reflow/main.py --mr-id 123 --config config/config.json
 ```
 
 ## 输出示例
@@ -150,13 +166,13 @@ MR #124 - src/model/product.py
 ----------------------------------------
 ```
 
-## 扩展阅读
+## 📖 扩展阅读
 
-- 📋 **[简化方案设计](简化方案设计.md)** - 核心概念和工作流程
-- 📖 **[详细技术方案](代码变更指纹验证方案设计.md)** - 完整的技术实现方案
-- 💡 **[使用示例](examples/README.md)** - 详细的使用指南和配置
-- ⚙️ **[实现代码](impl/README.md)** - 完整的代码实现和测试
-- 📚 **[API文档](docs/README.md)** - 接口说明和扩展功能
+- 💡 **[使用示例](examples/README.md)** - 详细的使用指南和演示代码
+- 📋 **[配置说明](config/README.md)** - 配置文件的详细说明和模板
+- 📚 **[项目文档](docs/README.md)** - 完整的文档体系和开发指南
+- 🧪 **[测试说明](tests/)** - 单元测试和集成测试用例
+- 🔧 **[设计文档](docs/design/)** - 系统架构和技术实现方案
 
 ## 贡献
 

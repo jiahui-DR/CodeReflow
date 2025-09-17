@@ -1,4 +1,4 @@
-config.json
+config/config.json
 
 # Python cache files
 __pycache__/

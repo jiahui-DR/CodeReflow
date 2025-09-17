@@ -1,0 +1,37 @@
+{
+  "gitlab": {
+    "url": "https://gitlab.test.com",
+    "token": "test-token-123456",
+    "project_id": "42"
+  },
+  "git": {
+    "repo_path": "/tmp/test-repo",
+    "target_branch": "dev_master",
+    "search_days": 7
+  },
+  "fingerprint": {
+    "ignore_patterns": [
+      "*.md",
+      "*.txt",
+      "tests/*",
+      "docs/*"
+    ]
+  },
+  "output": {
+    "format": "json"
+  },
+  "performance": {
+    "max_workers": 2,
+    "enable_metrics": true
+  },
+  "cache": {
+    "backend": "memory",
+    "max_size": 100,
+    "default_ttl": 300
+  },
+  "logging": {
+    "level": "DEBUG",
+    "format": "structured",
+    "file": "tests/test.log"
+  }
+}

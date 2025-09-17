@@ -1,303 +1,88 @@
-# API文档和扩展说明
-
-## API 参考
-
-### MRProcessor 类
-
-#### 方法：`get_branch_mrs(source_branch, target_branch='dev_master')`
-
-获取指定分支的MR列表
-
-**参数**：
-- `source_branch` (str): 源分支名称
-- `target_branch` (str): 目标分支名称，默认为 'dev_master'
-
-**返回值**：
-```python
-[
-    {
-        'id': 123,
-        'title': 'Fix user authentication bug',
-        'description': 'Fixed authentication issue...',
-        'source_branch': 'feature/auth-fix',
-        'target_branch': 'dev_master',
-        'merge_commit_sha': 'a1b2c3d4...',
-        'state': 'merged',
-        'author': 'john.doe'
-    }
-]
-```
-
-### ChangeExtractor 类
-
-#### 方法：`extract_changes(mr_info)`
-
-从MR信息中提取代码变更
-
-**参数**：
-- `mr_info` (dict): MR信息字典
-
-**返回值**：
-```python
-[
-    {
-        'file_path': 'src/service/user.py',
-        'change_type': 'MODIFY',
-        'diff_content': '@@ -10,5 +10,7 @@\n-    return None\n+    return user_data\n+    if not user_data:\n+        return None\n'
-    }
-]
-```
-
-### FingerprintGenerator 类
-
-#### 方法：`generate(changes)`
-
-为代码变更生成指纹
-
-**参数**：
-- `changes` (list): 变更列表
-
-**返回值**：
-```python
-[
-    {
-        'fingerprint': 'a1b2c3d4e5f67890',
-        'mr_id': 123,
-        'file_path': 'src/service/user.py',
-        'change_type': 'MODIFY',
-        'line_count': 3,
-        'content_preview': 'return user_data\nif not user_data:\nreturn None'
-    }
-]
-```
-
-### MasterBranchSearcher 类
-
-#### 方法：`search_changes_in_master(mr_fingerprints, days_back=30)`
-
-在主线分支中搜索MR变更的匹配
-
-**参数**：
-- `mr_fingerprints` (list): MR指纹列表
-- `days_back` (int): 搜索时间范围（天），默认为30天
-
-**返回值**：
-```python
-[
-    {
-        'mr_id': 123,
-        'fingerprint': 'a1b2c3d4e5f67890',
-        'file_path': 'src/service/user.py',
-        'matched': true,
-        'match_commit': 'b2c3d4e5f678901234567890abcdef12345678',
-        'match_type': 'direct_merge',
-        'confidence': 1.0
-    }
-]
-```
-
-### MatchValidator 类
-
-#### 方法：`validate_results(search_results)`
-
-验证搜索结果并生成最终结论
-
-**参数**：
-- `search_results` (list): 搜索结果列表
-
-**返回值**：
-```python
-[
-    {
-        'mr_id': 123,
-        'fingerprint': 'a1b2c3d4e5f67890',
-        'file_path': 'src/service/user.py',
-        'matched': true,
-        'match_commit': 'b2c3d4e5f678901234567890abcdef12345678',
-        'match_type': 'direct_merge',
-        'confidence': 1.0,
-        'conclusion': '已进入主线',
-        'reason': '通过直接合并进入主线分支，匹配提交: b2c3d4e5',
-        'recommendation': '无需操作'
-    }
-]
-```
-
-### ResultOutputer 类
-
-#### 方法：`output_results(validated_results, output_format='console')`
-
-输出验证结果
-
-**参数**：
-- `validated_results` (list): 验证结果列表
-- `output_format` (str): 输出格式 ('console', 'json', 'markdown')
-
-## 配置说明
-
-### GitLab配置
-
-```json
-{
-  "gitlab": {
-    "url": "https://gitlab.yourcompany.com",
-    "token": "your-personal-access-token",
-    "project_id": 12345
-  }
-}
-```
-
-### Git配置
-
-```json
-{
-  "git": {
-    "repo_path": "/absolute/path/to/git/repository",
-    "target_branch": "dev_master",
-    "search_days": 30
-  }
-}
-```
-
-### 指纹配置
-
-```json
-{
-  "fingerprint": {
-    "ignore_patterns": [
-      "^\\s*#.*$",           # 注释行
-      "^\\s*$",              # 空行
-      "^\\s*import",         # 导入语句
-      "^\\s*from.*import"    # 导入语句
-    ]
-  }
-}
-```
-
-## 扩展说明
-
-### 支持的合并场景
-
-1. **直接合并 (Direct Merge)**
-   - MR直接合并到目标分支
-   - 置信度：1.0
-
-2. **Cherry-pick**
-   - 变更被cherry-pick到目标分支
-   - 置信度：0.9
-
-3. **多路径合并**
-   - 通过中间分支间接合并
-   - 置信度：0.9
-
-4. **代码重构**
-   - 代码逻辑等价但形式不同
-   - 置信度：0.5-0.8（需要人工确认）
-
-### 性能优化
-
-1. **缓存策略**
-   - 缓存最近的提交指纹
-   - 缓存分支合并历史
-
-2. **并行处理**
-   - 多线程处理多个MR
-   - 分布式处理大规模仓库
-
-3. **增量验证**
-   - 只验证新增的变更
-   - 跳过已验证的MR
-
-### 错误处理
-
-1. **网络错误**
-   - GitLab API调用失败时的重试机制
-   - 超时处理
-
-2. **Git操作错误**
-   - 仓库访问权限问题
-   - 分支不存在的情况
-
-3. **数据一致性**
-   - MR状态变更时的处理
-   - 并发访问控制
-
-### 扩展功能
-
-1. **多语言支持**
-   - JavaScript/TypeScript
-   - Java
-   - C++
-   - Go
-
-2. **高级匹配算法**
-   - AST语法树分析
-   - 语义相似度计算
-   - 机器学习辅助匹配
-
-3. **可视化界面**
-   - Web界面展示结果
-   - 交互式分支图
-   - 统计报表
-
-4. **集成能力**
-   - CI/CD Pipeline集成
-   - Slack/Teams通知
-   - Jira问题跟踪
-
-## 故障排除
-
-### 常见问题
-
-1. **GitLab Token权限不足**
-   - 确保Token有读取MR和仓库的权限
-   - 检查项目访问权限
-
-2. **Git仓库路径错误**
-   - 使用绝对路径
-   - 确保有读取权限
-
-3. **分支不存在**
-   - 检查分支名称拼写
-   - 确认分支已推送到远程
-
-4. **性能问题**
-   - 调整search_days参数
-   - 启用缓存机制
-
-### 日志分析
-
-系统会输出详细的日志信息，帮助诊断问题：
-
-```
-2024-01-15 10:30:15 INFO - Processing MR #123
-2024-01-15 10:30:16 INFO - Generated 5 fingerprints for MR #123
-2024-01-15 10:30:17 INFO - Found match in commit a1b2c3d4
-2024-01-15 10:30:17 INFO - Validation completed for MR #123
-```
-
-### 调试模式
-
-启用调试模式获取更详细的信息：
-
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## 版本历史
-
-- **v0.1.0**: 基础功能实现
-  - MR获取和处理
-  - 基础指纹生成
-  - 简单匹配验证
-
-- **v0.2.0**: 性能优化
-  - 缓存机制
-  - 并行处理
-  - 增量验证
-
-- **v1.0.0**: 生产就绪
-  - 多语言支持
-  - 高级匹配算法
-  - Web界面
+# 项目文档
+
+本目录包含MR回流验证系统的完整文档集。
+
+## 📖 **文档结构**
+
+### **用户指南** (`user_guide/`)
+面向最终用户的使用指南：
+- `installation.md` - 安装指南
+- `quick_start.md` - 快速开始
+- `configuration.md` - 配置说明
+- `advanced_usage.md` - 高级用法
+
+### **开发者指南** (`developer_guide/`)
+面向开发者的技术文档：
+- `architecture.md` - 系统架构
+- `api_reference.md` - API参考
+- `contributing.md` - 贡献指南
+- `testing.md` - 测试指南
+- `implementation_notes.md` - 实现说明
+
+### **设计文档** (`design/`)
+系统设计和技术规范：
+- `solution_design.md` - 解决方案设计
+- `simple_solution.md` - 简化方案
+- `improvements_log.md` - 改进日志
+
+## 🎯 **文档导航**
+
+### **我是新用户**
+1. 📖 [快速开始](user_guide/quick_start.md) - 5分钟上手指南
+2. ⚙️ [配置说明](user_guide/configuration.md) - 配置GitLab和Git
+3. 🚀 [基础用法](user_guide/basic_usage.md) - 常用命令
+
+### **我要深入使用**
+1. 🔧 [高级用法](user_guide/advanced_usage.md) - 高级功能和优化
+2. 📊 [性能优化](user_guide/performance.md) - 提升验证速度
+3. 🔗 [CI/CD集成](user_guide/cicd_integration.md) - 集成到持续集成
+
+### **我要参与开发**
+1. 🏗️ [系统架构](developer_guide/architecture.md) - 了解系统设计
+2. 🧪 [测试指南](developer_guide/testing.md) - 运行和编写测试
+3. 🤝 [贡献指南](developer_guide/contributing.md) - 如何贡献代码
+
+### **我要了解设计**
+1. 💡 [解决方案设计](design/solution_design.md) - 完整设计思路
+2. 📈 [改进历程](design/improvements_log.md) - 系统改进记录
+3. ⚡ [简化方案](design/simple_solution.md) - 快速实现方案
+
+## 🔍 **快速查找**
+
+### **常见问题**
+- **配置问题**: 查看 [配置说明](user_guide/configuration.md)
+- **性能问题**: 查看 [性能优化](user_guide/performance.md) 
+- **API问题**: 查看 [API参考](developer_guide/api_reference.md)
+- **测试问题**: 查看 [测试指南](developer_guide/testing.md)
+
+### **功能说明**
+- **MR验证**: [快速开始](user_guide/quick_start.md#mr验证)
+- **交付分支**: [高级用法](user_guide/advanced_usage.md#交付分支验证)
+- **多仓库**: [高级用法](user_guide/advanced_usage.md#多仓库验证)
+- **并行处理**: [性能优化](user_guide/performance.md#并行处理)
+
+## 📝 **文档贡献**
+
+### **改进文档**
+如果你发现文档问题或想要改进：
+
+1. **报告问题**: 在GitHub Issues中描述问题
+2. **提交改进**: 直接提交Pull Request
+3. **补充内容**: 添加缺失的使用场景或示例
+
+### **文档标准**
+- 使用Markdown格式
+- 包含实际可运行的代码示例
+- 添加适当的截图和图表
+- 保持简洁清晰的表达
+
+## 🔗 **相关资源**
+
+- **项目主页**: [README.md](../README.md)
+- **配置示例**: [config/](../config/)
+- **代码示例**: [examples/](../examples/)
+- **测试用例**: [tests/](../tests/)
+
+---
+
+💡 **提示**: 如果你是第一次使用，强烈建议从 [快速开始](user_guide/quick_start.md) 开始！

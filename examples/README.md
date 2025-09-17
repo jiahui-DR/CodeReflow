@@ -1,126 +1,107 @@
-# 使用示例
+# 示例和演示
 
-## 配置模板
+本目录包含MR回流验证系统的各种使用示例和演示脚本。
 
-### config.json
+## 📚 **示例文件**
 
-```json
-{
-  "gitlab": {
-    "url": "https://gitlab.yourcompany.com",
-    "token": "your-gitlab-token",
-    "project_id": 12345
-  },
-  "git": {
-    "repo_path": "/path/to/your/git/repo",
-    "target_branch": "dev_master",
-    "search_days": 30
-  },
-  "fingerprint": {
-    "ignore_patterns": [
-      "^\\s*#.*$",
-      "^\\s*$",
-      "^\\s*import"
-    ]
-  }
-}
-```
-
-## 命令行使用
+### 1. **basic_usage.py** - 基础使用示例
+演示系统的基本功能和组件使用方法。
 
 ```bash
-# 验证指定分支的所有MR
-python main.py --branch feature/my-feature --config config.json
-
-# 验证特定MR
-python main.py --mr-id 123 --config config.json
-
-# 输出为JSON格式
-python main.py --branch feature/my-feature --output json --config config.json
-
-# 自定义搜索时间范围
-python main.py --branch feature/my-feature --days 60 --config config.json
+# 运行基础使用示例
+python3 examples/basic_usage.py
 ```
 
-## Python API使用
+**功能演示**:
+- 配置管理器使用
+- 指纹生成器演示
+- 基础组件初始化
 
-```python
-from core_reflow.gitlab.mr_processor import MRProcessor
-from core_reflow.git import extractor import ChangeExtractor
-from core_reflow.fingerprint.generator import FingerprintGenerator
-from core_reflow.git.searcher import MasterBranchSearcher
-from core_reflow.core.validator import MatchValidator
-from core_reflow.core.outputer import ResultOutputer
+### 2. **delivery_branch_demo.py** - 交付分支验证演示
+展示如何验证交付分支的所有MR是否进入主线分支。
 
-# 初始化组件
-mr_processor = MRProcessor(gitlab_token, project_id)
-change_extractor = ChangeExtractor(repo_path)
-fingerprint_gen = FingerprintGenerator()
-searcher = MasterBranchSearcher(repo_path)
-validator = MatchValidator()
-outputer = ResultOutputer()
-
-# 获取MR列表
-mrs = mr_processor.get_branch_mrs('feature/my-feature')
-
-# 处理每个MR
-all_results = []
-for mr in mrs:
-    # 提取变更
-    changes = change_extractor.extract_changes(mr)
-
-    # 生成指纹
-    fingerprints = fingerprint_gen.generate(changes)
-
-    # 在主线分支中搜索
-    search_results = searcher.search_changes_in_master(fingerprints)
-
-    # 验证结果
-    validated_results = validator.validate_results(search_results)
-
-    all_results.extend(validated_results)
-
-# 输出结果
-outputer.output_results(all_results, 'console')
+```bash
+# 运行交付分支验证演示
+python3 examples/delivery_branch_demo.py
 ```
 
-## 输出示例
+**功能演示**:
+- GitLab API获取交付分支MR
+- 批量验证MR回流状态
+- 生成详细验证报告
 
-### 控制台输出
-```
-================================================================================
-MR 回流验证结果
-================================================================================
+### 3. **main_example.py** - 主程序使用示例
+展示如何通过主程序接口使用各种功能。
 
-MR #123 - src/service/user.py
-状态: 已进入主线
-原因: 通过直接合并进入主线分支，匹配提交: a1b2c3d4
-建议: 无需操作
-匹配提交: a1b2c3d4
-置信度: 1.00
-----------------------------------------
-
-MR #124 - src/model/product.py
-状态: 未进入主线
-原因: 在主线分支中未找到匹配的变更
-建议: 需要推动合并到主线
-----------------------------------------
+```bash
+# 运行主程序示例
+python3 examples/main_example.py
 ```
 
-### JSON输出
-```json
-[
-  {
-    "mr_id": 123,
-    "fingerprint": "a1b2c3d4e5f67890",
-    "file_path": "src/service/user.py",
-    "matched": true,
-    "match_commit": "a1b2c3d4e5f678901234567890abcdef12345678",
-    "match_type": "direct_merge",
-    "confidence": 1.0,
-    "conclusion": "已进入主线",
-    "reason": "通过直接合并进入主线分支，匹配提交: a1b2c3d4",
-    "recommendation": "无需操作"
-  }
-]
+## 🚀 **运行示例**
+
+### **前置条件**
+1. 已安装依赖: `pip install -r requirements.txt`
+2. 已配置GitLab访问: 编辑 `config/config.json`
+
+### **基础演示**
+```bash
+# 1. 基础功能演示
+python3 examples/basic_usage.py
+
+# 2. 交付分支验证演示
+python3 examples/delivery_branch_demo.py
+
+# 3. 主程序功能演示  
+python3 examples/main_example.py
 ```
+
+### **自定义演示**
+```bash
+# 使用自己的配置运行演示
+python3 examples/basic_usage.py --config config/your_config.json
+
+# 指定特定的项目演示
+python3 examples/delivery_branch_demo.py --project-id 1752
+```
+
+## 📋 **示例说明**
+
+### **适用场景**
+- **学习系统功能**: 了解各个组件的作用和用法
+- **测试配置**: 验证你的配置是否正确
+- **开发参考**: 作为开发新功能的参考代码
+- **演示系统**: 向团队展示系统能力
+
+### **自定义建议**
+- 复制示例文件并根据你的需求修改
+- 调整配置参数来适应你的环境
+- 添加自己的业务逻辑和验证规则
+- 扩展示例来测试特定的场景
+
+## 🔧 **开发新示例**
+
+如果你想创建新的示例：
+
+1. **复制现有示例**
+   ```bash
+   cp examples/basic_usage.py examples/your_example.py
+   ```
+
+2. **修改导入路径**
+   ```python
+   import sys
+   from pathlib import Path
+   project_root = Path(__file__).parent.parent
+   sys.path.insert(0, str(project_root))
+   ```
+
+3. **添加你的逻辑**
+   ```python
+   def your_demo_function():
+       # 你的演示代码
+       pass
+   ```
+
+4. **更新README**
+   在本文件中添加新示例的说明

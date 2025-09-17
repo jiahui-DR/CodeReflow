@@ -9,26 +9,26 @@ import time
 from pathlib import Path
 
 # 添加项目根目录到Python路径
-project_root = Path(__file__).parent
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.config import ConfigManager
-from utils.logging_config import setup_global_logging, get_structured_logger
-from utils.metrics import get_metrics_collector, timer_context, count_operation
-from utils.parallel import MRParallelProcessor
-from utils.cache import CacheManager, MemoryCache, FileCache
-from utils.exceptions import (
+from core_reflow.utils.config import ConfigManager
+from core_reflow.utils.logging_config import setup_global_logging, get_structured_logger
+from core_reflow.utils.metrics import get_metrics_collector, timer_context, count_operation
+from core_reflow.utils.parallel import MRParallelProcessor
+from core_reflow.utils.cache import CacheManager, MemoryCache, FileCache
+from core_reflow.utils.exceptions import (
     CoreReflowError, ConfigurationError, GitLabAPIError, 
     GitOperationError, ValidationError
 )
-from utils.validators import validate_output_format, validate_days_back
+from core_reflow.utils.validators import validate_output_format, validate_days_back
 
-from gitlab.mr_processor import MRProcessor
-from git.extractor import ChangeExtractor
-from fingerprint.generator import FingerprintGenerator
-from git.searcher import MasterBranchSearcher
-from core.validator import MatchValidator
-from core.outputer import ResultOutputer
+from core_reflow.gitlab_api.mr_processor import MRProcessor
+from core_reflow.git_operations.extractor import ChangeExtractor
+from core_reflow.fingerprint.generator import FingerprintGenerator
+from core_reflow.git_operations.searcher import MasterBranchSearcher
+from core_reflow.core.validator import MatchValidator
+from core_reflow.core.outputer import ResultOutputer
 
 
 class MRReflowValidator:
@@ -351,6 +351,8 @@ def main():
     
     parser.add_argument('--branch', help='验证指定分支的所有MR')
     parser.add_argument('--mr-id', type=int, help='验证指定MR')
+    parser.add_argument('--delivery-branch', help='验证交付分支的所有MR是否进入主线分支')
+    parser.add_argument('--multi-repo', action='store_true', help='验证配置文件中的所有仓库')
     parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--days', type=int, help='搜索时间范围（天）')
     parser.add_argument('--output', choices=['console', 'json', 'markdown'],
