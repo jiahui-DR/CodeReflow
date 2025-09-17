@@ -1,53 +1,58 @@
 {
   "gitlab": {
-    "url": "https://gitlab.yourcompany.com",
-    "token": "your-gitlab-personal-access-token",
-    "project_id": 12345
+    "url": "https://gitlab.example.com",
+    "token": "glpat-xxxxxxxxxxxxxxxxxxxx",
+    "project_id": "123",
+    "timeout": 30,
+    "retry_attempts": 3,
+    "verify_ssl": true
   },
   "git": {
-    "repo_path": "/absolute/path/to/your/git/repository",
+    "repo_path": "/path/to/your/repo",
     "target_branch": "dev_master",
-    "search_days": 30
+    "search_days": 30,
+    "shallow_clone": false,
+    "fetch_tags": true
   },
   "fingerprint": {
     "ignore_patterns": [
-      "^\\s*#.*$",
-      "^\\s*$",
-      "^\\s*import",
-      "^\\s*from.*import",
-      "^\\s*//.*$",
-      "^\\s*/\\*.*\\*/$",
-      "^\\s*package",
-      "^\\s*public class"
+      "*.md",
+      "*.txt",
+      "*.json",
+      "tests/*",
+      "docs/*",
+      ".gitignore",
+      "README*"
     ],
-    "code_extensions": [
-      ".py", ".java", ".js", ".ts", ".jsx", ".tsx",
-      ".cpp", ".c", ".h", ".hpp", ".go", ".rs", ".rb",
-      ".php", ".scala", ".kt", ".swift", ".cs", ".vb",
-      ".sql", ".yml", ".yaml", ".xml", ".json"
-    ]
+    "min_lines": 5,
+    "similarity_threshold": 0.8,
+    "hash_algorithm": "sha256"
+  },
+  "output": {
+    "format": "console",
+    "file": null,
+    "include_details": true,
+    "color": true
+  },
+  "performance": {
+    "max_workers": 4,
+    "chunk_size": 10,
+    "enable_metrics": true,
+    "timeout": 300
   },
   "cache": {
     "backend": "memory",
     "max_size": 1000,
     "default_ttl": 3600,
-    "cache_dir": ".cache"
-  },
-  "performance": {
-    "max_workers": 4,
-    "batch_size": 10,
-    "max_commits": 1000,
-    "enable_metrics": true
+    "cache_dir": ".cache",
+    "cleanup_interval": 7200
   },
   "logging": {
     "level": "INFO",
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    "file": "core_reflow.log",
-    "max_file_size": 10485760,
-    "backup_count": 5
-  },
-  "output": {
-    "format": "console",
-    "verbose": false
+    "format": "structured",
+    "file": "logs/core_reflow.log",
+    "max_size": "10MB",
+    "backup_count": 5,
+    "console_output": true
   }
 }

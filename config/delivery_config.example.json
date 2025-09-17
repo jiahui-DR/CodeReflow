@@ -1,54 +1,48 @@
 {
   "repositories": [
     {
-      "name": "DTU项目",
+      "name": "Backend API",
       "gitlab": {
-        "url": "https://code.deeproute.ai",
-        "token": "your-gitlab-token",
-        "project_id": 1752
+        "url": "https://gitlab.example.com",
+        "token": "glpat-backend-token",
+        "project_id": "group/backend"
       },
       "git": {
-        "repo_path": "/home/majiahui/codetree/repo/dtu",
-        "delivery_branch": "Release_Thoru_Share_From_Daily_250829",
-        "master_branch": "dev_master",
-        "search_days": 90
-      }
+        "repo_path": "/projects/backend",
+        "target_branch": "dev_master"
+      },
+      "delivery_branches": [
+        "delivery/v1.0.0",
+        "delivery/v1.1.0"
+      ]
     },
     {
-      "name": "另一个项目",
+      "name": "Frontend App", 
       "gitlab": {
-        "url": "https://gitlab.company.com",
-        "token": "another-token",
-        "project_id": 456
+        "url": "https://gitlab.example.com",
+        "token": "glpat-frontend-token",
+        "project_id": "group/frontend"
       },
       "git": {
-        "repo_path": "/path/to/another/repo",
-        "delivery_branch": "release/v2.0.0", 
-        "master_branch": "main",
-        "search_days": 60
-      }
+        "repo_path": "/projects/frontend",
+        "target_branch": "main"
+      },
+      "delivery_branches": [
+        "delivery/v2.0.0"
+      ]
     }
   ],
-  "fingerprint": {
-    "ignore_patterns": [
-      "^\\s*#.*$",
-      "^\\s*$",
-      "^\\s*import",
-      "^\\s*from.*import"
-    ],
-    "code_extensions": [
-      ".py", ".java", ".js", ".ts", ".cpp", ".c", ".h"
-    ]
-  },
-  "performance": {
+  "global_settings": {
+    "search_days": 30,
     "max_workers": 8,
-    "batch_size": 10,
-    "enable_metrics": true
-  },
-  "output": {
-    "format": "console",
-    "verbose": true,
-    "export_json": true,
-    "export_csv": true
+    "output_format": "json",
+    "cache": {
+      "backend": "file",
+      "cache_dir": "/tmp/multi_repo_cache"
+    },
+    "logging": {
+      "level": "INFO",
+      "file": "logs/multi_repo.log"
+    }
   }
 }
